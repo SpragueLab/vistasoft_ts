@@ -45,7 +45,17 @@ model.rss=single(model.rss./(size(prediction,1)- (size(trends,2)+1)));
 % b is the best-fit betas for each predictor (4)
 % rss is residual sum of squares
 if sum(goodvox) > 0
-    [idx,b,rss] = gridfitgpu(data(:,goodvox),model_preds,1); % 3rd arg: whether or not to truncate neg fits
+    % maybe if multiple GPUs available, create a parpool here (if doesn't
+    % already exist, if it does and has == nGPUs workers, use that one; if
+    % it has > nGPUs workers, kill it and create one w/ nGPUs workers)
+    % - split data(:,goodvox) into cell array
+    if gpuDeviceCount == 1
+        [idx,b,rss] = gridfitgpu    (data(:,goodvox),model_preds,1); % 3rd arg: whether or not to truncate neg fits
+    elseif gpuDeviceCount >= 1
+        [idx,b,rss] = gridfitgpu_par(data(:,goodvox),model_preds,1); % 3rd arg: whether or not to truncate neg fits
+    else
+        error('vistasoft_ts:mrBOLD:rmGridFit_oneGaussianNonlinear_GPU:GPUNotFound','No GPU detected!');
+    end
 else
     fprintf('No signal voxels this run..., moving on....\n');
     idx = []; b = []; rss = [];
