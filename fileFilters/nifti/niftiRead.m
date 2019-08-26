@@ -1,18 +1,22 @@
 function ni = niftiRead(fileName, volumesToLoad)
 % Matlab wrapper to call the mex readFileNifti
 %
+% *******************************************************
+% NOTE:  As of 2017 Matlab has a "niftiread" function in its
+% distribution. 
+% *******************************************************
+%
 %   niftiImage = niftiRead(fileName,volumesToLoad)
 %
 % Reads a NIFTI image and populates a structure that should be the
-% NIFTI 1 standard
+% NIFTI 1 standard.  We expect that the filename has an extension of
+% either .nii or .nii.gz
 %
 % If volumesToLoad is not included in the arguments, all the data
-% are returned.
-%    volumesToLoad is empty [] returns only the header
+% are returned. If volumesToLoad is empty ([]) returns only the header
 %
 % Web Resources
 %  web('http://nifti.nimh.nih.gov/nifti-1/','-browser')
-%  mrvBrowseSVN('niftiRead.m')
 %
 % See also:  niftiCreate, niftiGetStruct
 %
@@ -44,17 +48,24 @@ elseif ischar(fileName) && exist(fileName,'file')
         ni = readFileNifti(fileName);
     end
 else
-    % Did the person not include the .nii.gz extensions?
-    [~,n,e] = fileparts(fileName);
-    if isempty(e), fileNameExtended = [n,'.nii.gz']; end
+    % Make sure the the file includes the .nii.gz extensions
+    % Really, someone should 
+    [p,n,e] = fileparts(fileName);
+    if isempty(e), fileNameExtended = [p,filesep,n,'.nii.gz']; 
+    else
+        % The can be file.nii or file.nii.gz
+        if strcmp(e,'.gz') || strcmp(e,'.nii')
+            fileNameExtended = fileName;
+        else
+            warning('Unexpected file name extension %s\n',e);
+        end
+    end
     if exist(fileNameExtended,'file')
         ni = readFileNifti(fileNameExtended);
     else
-        error('Cannot find the file %s or %s\n',fileName,fileNameExtended);
+        error('Cannot find the file %s\n',fileNameExtended);
     end
 end
 
-% When there is a niftiGet, this can go away.
-ni.data_type = niftiClass2DataType(class(ni.data));
 
-return
+end

@@ -1,9 +1,10 @@
 function savetSeries(tSeries,vw,scan,slice,nii)
+% Save time series to a nifti file
 %
-% function savetSeries(tSeries,vw,scan,[slice],[nii])
+%   savetSeries(tSeries,vw,scan,[slice],[nii])
 %
-% This function should be called everytime you save a tSeries.
-% Makes the tSeries directory and scan subdirectory if they don't already exist.
+% This function should be called everytime you save a tSeries. Makes the
+% tSeries directory and scan subdirectory if they don't already exist.
 % 
 % Nifti functionality has been added. In the directory
 % '[sessionDir]/[dataTYPE]/TSeries/tSeriesScan[Scan#]Slice[Slice#].nii.gz'
@@ -39,11 +40,11 @@ if strcmp(viewType,'Inplane')
     if curDt > numel(dataTYPES)
         newName = [];
         dlg = 'Please give a new name for the new datatype';
-        while isempty(newName);
+        while isempty(newName)
             newName = inputdlg(dlg,'Name new datatype');
-            if iscell(newName) && ~isempty(newName);
+            if iscell(newName) && ~isempty(newName)
                 newName = deblank(newName{1}); % remove possible blanks
-                if existDataType(newName);
+                if existDataType(newName)
                     dlg = 'What you just input is already in dataTYPES. Try again !!!';
                     newName = []; disp(['Warning: ',dlg]);
                 end
@@ -85,15 +86,22 @@ if strcmp(viewType,'Inplane')
         dim = size(newtSeries);
         nii = niftiSet(nii,'Dim',dim);
         nii = niftiSet(nii,'Data',newtSeries);
-    end %if
+        
+    else %if
+        dim = niftiGet(nii, 'dim');
+    end
     
-	nii = niftiSet(nii,'File Path',pathStr);
-
+    
     %Now we need to add another dimension to the pixdim if it only has 3
     if numel(niftiGet(nii,'Pix Dim')) < numel(dim)
         %Add another pixdim
         nii = niftiSet(nii, 'Pix Dim',[niftiGet(nii,'Pix Dim') 1]);
     end
+
+    
+	nii = niftiSet(nii,'File Path',pathStr);
+
+
     
     niftiWrite(nii,pathStr);
     

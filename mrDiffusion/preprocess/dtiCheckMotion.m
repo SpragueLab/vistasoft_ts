@@ -23,6 +23,7 @@ function [fh, figurename] = dtiCheckMotion(ecXformFile,visibility)
 %                motion estimates. 
 %
 % Franco Pestilli & Bob Dougherty Stanford University
+% 03/01/2019 Hiromasa Takemura (CiNet) modified a figure handle
 
 if notDefined('visibility'), visibility = 'on'; end
 if(~exist('ecXformFile','var') || isempty(ecXformFile))
@@ -38,9 +39,10 @@ t = vertcat(ec.xform(:).ecParams);
 % We make a plot of the motion correction during eddy current correction
 % but we do not show the figure. We only save it to disk.
 fh = mrvNewGraphWin([],[],visibility);
-if isstruct(fh)
-    fh = fh.Number;
+if ishandle(fh)
+    fh = fh.Number; 
 end
+
 subplot(2,1,1); 
 plot(t(:,1:3)); 
 title('Translation'); 
@@ -58,12 +60,24 @@ legend({'pitch','roll','yaw'});
 % Save out a PNG figure with the same filename as the Eddy Currents correction xform. 
 [p,f,~] = fileparts(ecXformFile);
 figurename = fullfile(p,[f,'.png']);
+
+if isnumeric(fh)==1
 printCommand = ...
     sprintf('print(%s, ''-painters'',''-dpng'', ''-noui'', ''%s'')', ...
     num2str(fh),figurename);
+else
+printCommand = ...
+    sprintf('print(%s, ''-painters'',''-dpng'', ''-noui'', ''%s'')', ...
+    num2str(fh.Number),figurename);    
+end
 fprintf('[%s] Saving Eddy Current correction figure: \n %s \n', ...
          mfilename,figurename);
 eval(printCommand);
+
+% Write out RMS displacement as a .txt. This is overall 
+% displacement between each scan
+d = vertcat(0, diff(sqrt(t(:,1).^2+t(:,2).^2+t(:,3).^2)));
+dlmwrite(fullfile(p,'Voxel_motion.txt'), d);
 
 % Delete output if it was nto requested
 if (nargout < 1), close(fh); clear fh figurename; end
