@@ -150,7 +150,7 @@ if exist(pathStr,'file')
 end
 
 % save
-save(pathStr,'model','params');
+save(pathStr,'model','params','-v7.3'); % edit, TCS 2/20/2017, to ensure large files/vars don't get discarded
 fprintf(1,'[%s]:Saved %s.\n',mfilename,pathStr);
 return;
 %------------------------
@@ -158,14 +158,22 @@ return;
 
 %------------------------
 function mapdata = myreshape(param,dims,coordsInd)
+% note: need to check numel(param), not size param!!!!
 
+% using all data
 if isequal(dims, size(param))
-    
+    % if param is in the right space already, just assign to mapdata
     mapdata = param;
+    return
+elseif isequal(prod(dims),numel(param))
+    % if it's reshaped (in slices, as during inplane fits), reshape
+    mapdata = reshape(param.',dims);
     return
 end
 
-if ~isequal(length(coordsInd), prod(dims))
+% handle case where you're analyzing a subset of data (ROI, etc)
+% TS: should not be equal!!!!!
+if isequal(length(coordsInd), prod(dims))
     % otherwise
     mapdata = reshape(param.',dims);
 else
