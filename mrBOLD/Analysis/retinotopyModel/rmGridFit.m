@@ -263,6 +263,9 @@ for slice=loopSlices,
         t.dcid   = dcid;       
     end
     
+    % IF this slice has any voxels...
+    
+    
     % Run the grid fit estimate for this slice, s{}.
     for n=1:numel(params.analysis.pRFmodel)
         switch lower(params.analysis.pRFmodel{n}),
@@ -370,6 +373,7 @@ for slice=loopSlices,
                 fprintf('[%s]:Unknown pRF model: %s: IGNORED!',mfilename,params.analysis.pRFmodel{n});
         end
     end
+    % END if here...
 
     %-----------------------------------
     % now put back the trends to the fits
@@ -382,8 +386,7 @@ for slice=loopSlices,
     %-----------------------------------
     % now we put back the temporary data from that slice
     %-----------------------------------
-    if slice == 35
-    end
+
     model = rmSliceSet(model,s,slice);
 end;
 

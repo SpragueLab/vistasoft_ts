@@ -39,7 +39,7 @@ model.rss=single(model.rss./(size(prediction,1)- (size(trends,2)+1)));
 
 
 %------------------------------------
-% offload the work of computing the model fits to gridfitgpu_test.m
+% offload the work of computing the model fits to gridfitgpu.m
 
 % idx is the idx within model_preds of the best-fit model for each voxel
 % b is the best-fit betas for each predictor (4)
@@ -95,8 +95,12 @@ for ii = 1:length(idx)
     model.s_theta(goodvox_idx(ii))  = params.analysis.theta(idx(ii));
     model.exponent(goodvox_idx(ii)) = params.analysis.exponent(idx(ii));
     
+    % save the predictions index...used for saving out the best-fit
+    % prediction timeseries...
+    %model.predidx(goodvox_idx(ii))  = idx(ii); 
+    
     %model.b([1 t_id],minRssIndex) = b(:,minRssIndex);
-end;
+end
 
 
 % Correct lscov. It returns the mean rss. To maintain compatibility with the
@@ -105,13 +109,6 @@ end;
 % trends, not +1, as that's the value used in line 227!!!!!
 %model.rss=single(model.rss.*(size(prediction,1)-size(trends,2)+1));  
  
-% end time monitor NOTE: all timing in gpuRegress
-% et  = toc;
-% if floor(esttime/3600)>0,
-%     fprintf(1,'Done[%d hours].\t(%s)\n', ceil(et/3600), datestr(now));
-% else
-%     fprintf(1,'Done[%d minutes].\t(%s)\n', ceil(et/60), datestr(now));
-% end;
 %drawnow;
 return;
 
