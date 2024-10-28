@@ -1,8 +1,7 @@
 function [RFcov, figHandle, all_models, weight, data] = rmPlotCoverage(vw, varargin)
+% [RFcov, figHandle, all_models, weight, data] = rmPlotCoverage(vw, varargin)
 % rmPlotCoverage - calulate the visual field coverage within an ROI
 % 
-% [RFcov figHandle all_models weight data]  = rmPlotCoverage(vw, varargin)
-%
 %
 % Before you run this script, you have to load 'variance explained', 'eccentricity',
 % 'polar-angle' and 'prf size' into 'co', 'map', 'ph' and 'amp' fields, respectively
@@ -326,7 +325,7 @@ if isequal( lower(vfc.method), 'density' )
 	if vfc.newfig==-1
 		figHandle = [];
 	else
-		figHandle = createCoveragePlot(vw, RFcov, vfc, roi, data);
+		[figHandle, data]  = createCoveragePlot(vw, RFcov, vfc, roi, data);
 	end
 
 	return
@@ -519,7 +518,7 @@ end
 if vfc.newfig==-1, 
     figHandle = [];
 else
-	figHandle = createCoveragePlot(vw, RFcov, vfc, roi, data);
+	[figHandle, data] = createCoveragePlot(vw, RFcov, vfc, roi, data);
 end
 
 
@@ -530,7 +529,7 @@ return
 
 
 % /--------------------------------------------------------------------/ %
-function figHandle = createCoveragePlot(vw, RFcov, vfc, roi, data)
+function [figHandle, data] = createCoveragePlot(vw, RFcov, vfc, roi, data)
 % plotting subroutine for rmPlotCoverage. Broken off by ras 10/2009.
 if vfc.newfig
     figHandle = figure('Color', 'w');
@@ -556,6 +555,8 @@ img = img .* mask;
 imagesc(data.X(1,:), data.Y(:,1), img);
 set(gca, 'YDir', 'normal');
 grid on
+
+data.img = img;
 
 colormap(vfc.cmap);
 colorbar;

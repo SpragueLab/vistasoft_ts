@@ -48,7 +48,7 @@ switch vw.viewType
         roiFuncCoords = ip2functionalCoords(vw, roiCoords, ...
             scan, preserveCoords, preserveExactValues);                        
 
-		inSlice = roiFuncCoords(3, :) == vw.tSeriesSlice;
+		inSlice = ismember(roiFuncCoords(3, :), vw.tSeriesSlice);
 		subIndices = coords2Indices(roiFuncCoords(1:2, inSlice), viewGet(vw, 'sliceDims', scan));
 
 		% pull out the tSeries for included pixels
@@ -60,14 +60,14 @@ switch vw.viewType
 			vw = percentTSeries(vw, getCurScan(vw), 1);
 		end
 		
-		[tmp, roiIndices, subIndices] = intersectCols(roiCoords, vw.coords);
+		[~, roiIndices, subIndices] = intersectCols(roiCoords, vw.coords);
         
         % The function intersectCols sorts the data, such that 
         % subIndices will not index the time series in the same order as
         % roiCoords. We would like to fix this, such that each column of
         % subTSeries refers to the corresponding colum in roiCoords. This
         % requires an additional sorting step.
-        [tmp, inds]  = sort(roiIndices);
+        [~, inds]  = sort(roiIndices);
         subIndices   = subIndices(inds);
 		subTSeries   = vw.tSeries(:,subIndices);		
 		
@@ -80,8 +80,19 @@ switch vw.viewType
 			subTSeries = NaN([nFrames nVoxels]);
 			subIndices = NaN([1 nVoxels]);
              
+            numCoords = size(roiCoords,2);
+            
             % GET RID OF THIS LOOP AND REPLACE WITH FASTER CODE
-			for v = 1:size(roiCoords, 2)
+			for v = 1:numCoords
+                
+                % print out progress. with a very large ROI this takes a
+                % while ... print out progress so user knows how much
+                % longer to wait. 
+                % Let the user know everytime we hit 5000 voxels
+                if ~mod(v,5000)
+                    disp([num2str(v) '/' num2str(numCoords) 'voxels down'])
+                end
+                
  				I = find( vw.coords(1,:) == roiCoords(1,v) & ...
  						  vw.coords(2,:) == roiCoords(2,v) & ...
  						  vw.coords(3,:) == roiCoords(3,v) );

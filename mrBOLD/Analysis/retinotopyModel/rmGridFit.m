@@ -252,7 +252,7 @@ for slice=loopSlices,
     end;
 
     %-----------------------------------
-    % At this point, we have a slice of data and we will fit fit different
+    % At this point, we have a slice of data and we will fit different
     % pRF models.  This is the part of the code that is the slowest.
     %-----------------------------------
     if params.analysis.dc.datadriven
@@ -262,6 +262,9 @@ for slice=loopSlices,
         t.trends = trends(:,dcid);
         t.dcid   = dcid;       
     end
+    
+    % IF this slice has any voxels...
+    
     
     % Run the grid fit estimate for this slice, s{}.
     for n=1:numel(params.analysis.pRFmodel)
@@ -370,6 +373,7 @@ for slice=loopSlices,
                 fprintf('[%s]:Unknown pRF model: %s: IGNORED!',mfilename,params.analysis.pRFmodel{n});
         end
     end
+    % END if here...
 
     %-----------------------------------
     % now put back the trends to the fits
@@ -382,8 +386,7 @@ for slice=loopSlices,
     %-----------------------------------
     % now we put back the temporary data from that slice
     %-----------------------------------
-    if slice == 35
-    end
+
     model = rmSliceSet(model,s,slice);
 end;
 

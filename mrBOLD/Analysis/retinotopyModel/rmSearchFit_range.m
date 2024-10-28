@@ -4,6 +4,8 @@ function [range, TolFun] = rmSearchFit_range(params,model,data)
 % boundary = rmSearchFit_boundary(params,startparams)
 %
 % 2010 SOD: split off from rmSearchFit_oneGaussian
+%
+% TCS - reverted to a previous commit (from JW, 2015)
 
 if ~exist('params','var') || isempty(params), error('Need params');  end
 if ~exist('model','var')  || isempty(model),  error('Need model');   end
