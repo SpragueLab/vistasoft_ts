@@ -20,6 +20,8 @@ for n=id,
     tmp{n}.df   = single(rmGet(model{n},'dfglm'));
     for fn = 1:numel(f),
         val    = rmGet(model{n},f{fn});
+        % if isempty(val) - skip this loop; otherwise, do the switch
+        % thing...
         if ~isempty(val),
             % switch on the number of dimensions, since inplane data has 
             % diff dimensionality than other views
